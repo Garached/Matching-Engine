@@ -1,4 +1,51 @@
-﻿public enum OrderType { Limit, Market }
+﻿var book = new OrderBook();
+
+while (true)
+{
+    Console.Write(">>> ");
+    var input = Console.ReadLine();
+    
+    if (string.IsNullOrEmpty(input)) continue;
+    
+    var parts = input.Split(' ');
+    
+    switch (parts[0])
+    {
+        case "limit":
+            var side = parts[1] == "buy" ? Side.Buy : Side.Sell;
+            var price = decimal.Parse(parts[2]);
+            var qty = int.Parse(parts[3]);
+            book.AddLimitOrder(side, price, qty);
+            break;
+
+        case "market":
+            var mSide = parts[1] == "buy" ? Side.Buy : Side.Sell;
+            var mQty = int.Parse(parts[2]);
+            book.AddMarketOrder(mSide, mQty);
+            break;
+
+        case "cancel":
+            var id = int.Parse(parts[2]);
+            book.CancelOrder(id);
+            break;
+
+        case "print":
+            book.PrintBook();
+            break;
+
+        case "peg":
+            var pSide = parts[2] == "buy" ? Side.Buy : Side.Sell;
+            var pQty = int.Parse(parts[3]);
+            book.AddPeggedOrder(pSide, pQty);
+            break;
+
+        default:
+            Console.WriteLine("Comando inválido");
+            break;
+    }
+}
+
+public enum OrderType { Limit, Market }
 public enum Side { Buy, Sell }
 
 public class Order
