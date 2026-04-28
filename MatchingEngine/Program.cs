@@ -96,7 +96,7 @@ public class OrderBook
             _asks.Enqueue(order, (price, order.Id));
 
         Console.WriteLine($"Order created: {side.ToString().ToLower()} {qty} @ {price} order_{order.Id}");
-        
+
         Match();
     }
 
@@ -216,7 +216,7 @@ public class OrderBook
             order.Qty = 0;
             _orders.Remove(id);
 
-            AddLimitOrder(order.Side, newPrice.Value, newQty ?? order.Qty); //zera a ordem antiga e coloca na nova fila com novo id
+            AddLimitOrder(order.Side, newPrice.Value, newQty ?? order.Qty); 
         }
 
         Console.WriteLine($"Order modified");
@@ -276,12 +276,3 @@ public class OrderBook
         }
     }
 }
-
-
-// OrderBook precisa de:
-// AddLimitOrder OK (match ainda n existe, sem parâmetro)
-// AddMarketOrder Ok - PrintBook, bonus 1; CancelOrder, bonus 3; Modify, bonus 4; Add, bonus 5
-// CancelOrder OK - dentro do Match(), antes de processar faz uym while e descarta ordens canceladas
-// ModifyOrder OK - newQty.HasValue checa se foi passado valor ou não 
-// AddPeggedOrder OK - acrash arrumado ja 
-// UpdatePeggedOrders OK - atualização automática bid
