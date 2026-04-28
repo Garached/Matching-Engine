@@ -56,6 +56,34 @@ public class OrderBook
         Match(order);
     }
 
+    public void Match()
+    {
+        while (_bids.Count > 0 && _asks.Count > 0)
+        {
+            var bid = _bids.Peek();
+            var ask = _asks.Peek();
+
+            if (bid.Qty == 0) { _bids.Dequeue(); continue; }
+            if (ask.Qty == 0) { _asks.Dequeue(); continue; }
+
+            if (bid.Price >= ask.Price)
+            {
+                int qty = Math.Min(bid.Qty, ask.Qty);
+                Console.WriteLine($"Trade, price: {ask.Price}, qty: {qty}");
+
+                bid.Qty -= qty;
+                ask.Qty -= qty;
+
+                if (bid.Qty == 0) _bids.Dequeue();
+                if (ask.Qty == 0) _asks.Dequeue();
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
     public void Match(Order marketOrder)
     {
         var oppositeBook = marketOrder.Side == Side.Buy ? _asks : _bids;
