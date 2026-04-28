@@ -16,6 +16,7 @@ public class OrderBook
     private PriorityQueue<Order, (decimal Price, int Id)> _asks = new();
     private int _nextId = 1;
     private Dictionary<int, Order> _orders = new();
+    private List<Order> _peggedOrders = new();
 
 
     public void AddLimitOrder(Side side, decimal price, int qty)
@@ -55,11 +56,44 @@ public class OrderBook
         Match(order);
     }
 
-    public void Match() { }
+    public void Match(Order marketOrder)
+    {
+        var oppositeBook = marketOrder.Side == Side.Buy ? _asks : _bids;
 
-    public void Match(Order marketOrder) { }
+        while (marketOrder.Qty > 0 && oppositeBook.Count > 0)
+        {
+            var best = oppositeBook.Peek();
 
-    public void PrintBook() { }
+            if (best.Qty == 0) { oppositeBook.Dequeue(); continue; }
+
+            int qty = Math.Min(marketOrder.Qty, best.Qty);
+            Console.WriteLine($"Trade, price: {best.Price}, qty: {qty}");
+
+            marketOrder.Qty -= qty;
+            best.Qty -= qty;
+
+            if (best.Qty == 0) oppositeBook.Dequeue();
+        }
+    }
+
+    public void PrintBook()
+    {
+        var buys = _orders.Values
+            .Where(o => o.Side == Side.Buy && o.Qty > 0)
+            .OrderByDescending(o => o.Price);
+
+        var sells = _orders.Values
+            .Where(o => o.Side == Side.Sell && o.Qty > 0)
+            .OrderBy(o => o.Price);
+
+        Console.WriteLine("Ordens de Compra");
+        foreach (var o in buys)
+            Console.WriteLine($"{o.Qty} @ {o.Price}");
+
+        Console.WriteLine("Ordens de Venda");
+        foreach (var o in sells)
+            Console.WriteLine($"{o.Qty} @ {o.Price}");
+    }
 
     public void CancelOrder(int id)
     {
@@ -75,9 +109,51 @@ public class OrderBook
         }
     }
 
-    public void ModifyOrder(int id, decimal? newPrice, int? newQty) { }
+    public void ModifyOrder(int id, decimal? newPrice, int? newQty) 
+    {
+            if (!_orders.TryGetValue(id, out var order))
+        {
+            Console.WriteLine("Order not found");
+            return;
+        }
 
-    public void AddPeggedOrder(Side side, int qty) { }
+        if (newQty.HasValue)
+            order.Qty = newQty.Value;
+
+        if (newPrice.HasValue)
+        {
+            order.Qty = 0;
+            _orders.Remove(id);
+
+            AddLimitOrder(order.Side, newPrice.Value, newQty ?? order.Qty); //zera a ordem antiga e coloca na nova fila com novo id
+        }
+
+        Console.WriteLine($"Order modified");
+    }
+
+    public void AddPeggedOrder(Side side, int qty) 
+    {
+        var referencePrice = side == Side.Buy
+        ? _bids.Peek().Price
+        : _asks.Peek().Price;
+
+        var order = new Order
+        {
+            Id = _nextId++,
+            Type = OrderType.Limit,
+            Side = side,
+            Price = referencePrice,
+            Qty = qty
+        };
+
+        _orders[order.Id] = order;
+        _peggedOrders.Add(order);
+
+        if (side == Side.Buy)
+            _bids.Enqueue(order, (-referencePrice, order.Id));
+        else
+            _asks.Enqueue(order, (referencePrice, order.Id));
+    }
 }
 
 
@@ -85,5 +161,5 @@ public class OrderBook
 // AddLimitOrder OK (match ainda n existe, sem parâmetro)
 // AddMarketOrder Ok - PrintBook, bonus 1; CancelOrder, bonus 3; Modify, bonus 4; Add, bonus 5
 // CancelOrder OK - dentro do Match(), antes de processar faz uym while e descarta ordens canceladas
-// ModifyOrder
+// ModifyOrder OK - newQty.HasValue checa se foi passado valor ou não 
 // AddPeggedOrder
