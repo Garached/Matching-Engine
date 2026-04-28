@@ -12,20 +12,22 @@ while (true)
     switch (parts[0])
     {
         case "limit":
+            if (parts.Length < 4) { Console.WriteLine("Uso: limit buy/sell <preco> <quantidade>"); break; }
+            if (!decimal.TryParse(parts[2], out var price) || !int.TryParse(parts[3], out var qty)) { Console.WriteLine("Preço e quantidade precisam ser números"); break; }
             var side = parts[1] == "buy" ? Side.Buy : Side.Sell;
-            var price = decimal.Parse(parts[2]);
-            var qty = int.Parse(parts[3]);
             book.AddLimitOrder(side, price, qty);
             break;
 
         case "market":
+            if (parts.Length < 3) { Console.WriteLine("Uso: market buy/sell <quantidade>"); break; }
+            if (!int.TryParse(parts[2], out var mQty)) { Console.WriteLine("Quantidade precisa ser um número"); break; }
             var mSide = parts[1] == "buy" ? Side.Buy : Side.Sell;
-            var mQty = int.Parse(parts[2]);
             book.AddMarketOrder(mSide, mQty);
             break;
 
         case "cancel":
-            var id = int.Parse(parts[2]);
+            if (parts.Length < 3) { Console.WriteLine("Uso: cancel order <id>"); break; }
+            if (!int.TryParse(parts[2], out var id)) { Console.WriteLine("Id precisa ser um número"); break; }
             book.CancelOrder(id);
             break;
 
@@ -33,9 +35,18 @@ while (true)
             book.PrintBook();
             break;
 
+        case "modify":
+            if (parts.Length < 4) { Console.WriteLine("Uso: modify <id> <novoPreco> <novaQty>"); break; }
+            if (!int.TryParse(parts[1], out var mId)) { Console.WriteLine("Id precisa ser um número"); break; }
+            decimal? newPrice = decimal.TryParse(parts[2], out var np) ? np : null;
+            int? newQty = int.TryParse(parts[3], out var nq) ? nq : null;
+            book.ModifyOrder(mId, newPrice, newQty);
+            break;
+
         case "peg":
+            if (parts.Length < 4) { Console.WriteLine("Uso: peg bid/offer buy/sell <quantidade>"); break; }
+            if (!int.TryParse(parts[3], out var pQty)) { Console.WriteLine("Quantidade precisa ser um número"); break; }
             var pSide = parts[2] == "buy" ? Side.Buy : Side.Sell;
-            var pQty = int.Parse(parts[3]);
             book.AddPeggedOrder(pSide, pQty);
             break;
 
@@ -208,6 +219,17 @@ public class OrderBook
 
     public void AddPeggedOrder(Side side, int qty) 
     {
+        if (side == Side.Buy && _bids.Count == 0)
+        {
+            Console.WriteLine("No bids available to peg to");
+            return;
+        }
+        if (side == Side.Sell && _asks.Count == 0)
+        {
+            Console.WriteLine("No asks available to peg to");
+            return;
+        }
+
         var referencePrice = side == Side.Buy
         ? _bids.Peek().Price
         : _asks.Peek().Price;
@@ -237,4 +259,4 @@ public class OrderBook
 // AddMarketOrder Ok - PrintBook, bonus 1; CancelOrder, bonus 3; Modify, bonus 4; Add, bonus 5
 // CancelOrder OK - dentro do Match(), antes de processar faz uym while e descarta ordens canceladas
 // ModifyOrder OK - newQty.HasValue checa se foi passado valor ou não 
-// AddPeggedOrder
+// AddPeggedOrder OK - acrash arrumado ja 
