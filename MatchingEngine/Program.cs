@@ -95,6 +95,8 @@ public class OrderBook
         else
             _asks.Enqueue(order, (price, order.Id));
 
+        Console.WriteLine($"Order created: {side.ToString().ToLower()} {qty} @ {price} order_{order.Id}");
+        
         Match();
     }
 
@@ -140,7 +142,7 @@ public class OrderBook
                 break;
             }
         }
-        
+
         UpdatePeggedOrders();
     }
 
@@ -267,9 +269,10 @@ public class OrderBook
 
             if (newPrice == 0 || newPrice == order.Price) continue;
 
+            int savedQty = order.Qty;
             order.Qty = 0;
             _peggedOrders.Remove(order);
-            AddPeggedOrder(order.Side, order.Qty);
+            AddPeggedOrder(order.Side, savedQty);
         }
     }
 }
