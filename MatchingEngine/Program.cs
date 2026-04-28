@@ -140,6 +140,8 @@ public class OrderBook
                 break;
             }
         }
+        
+        UpdatePeggedOrders();
     }
 
     public void Match(Order marketOrder)
@@ -160,6 +162,7 @@ public class OrderBook
 
             if (best.Qty == 0) oppositeBook.Dequeue();
         }
+        UpdatePeggedOrders();
     }
 
     public void PrintBook()
@@ -251,6 +254,24 @@ public class OrderBook
         else
             _asks.Enqueue(order, (referencePrice, order.Id));
     }
+
+    private void UpdatePeggedOrders()
+    {
+        foreach (var order in _peggedOrders.ToList())
+        {
+            if (order.Qty == 0) { _peggedOrders.Remove(order); continue; }
+
+            var newPrice = order.Side == Side.Buy
+                ? (_bids.Count > 0 ? _bids.Peek().Price : 0)
+                : (_asks.Count > 0 ? _asks.Peek().Price : 0);
+
+            if (newPrice == 0 || newPrice == order.Price) continue;
+
+            order.Qty = 0;
+            _peggedOrders.Remove(order);
+            AddPeggedOrder(order.Side, order.Qty);
+        }
+    }
 }
 
 
@@ -260,3 +281,4 @@ public class OrderBook
 // CancelOrder OK - dentro do Match(), antes de processar faz uym while e descarta ordens canceladas
 // ModifyOrder OK - newQty.HasValue checa se foi passado valor ou não 
 // AddPeggedOrder OK - acrash arrumado ja 
+// UpdatePeggedOrders OK - atualização automática bid
