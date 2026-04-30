@@ -14,6 +14,21 @@ cd Matching-Engine/MatchingEngine
 dotnet run
 ```
 
+## Comandos disponíveis
+
+| Comando | Descrição |
+|---|---|
+| `limit buy <preco> <qty>` | Cria uma ordem de compra limite |
+| `limit sell <preco> <qty>` | Cria uma ordem de venda limite |
+| `market buy <qty>` | Executa uma compra ao melhor preço disponível |
+| `market sell <qty>` | Executa uma venda ao melhor preço disponível |
+| `print book` | Exibe o livro de ordens e o spread atual |
+| `cancel order <id>` | Cancela uma ordem pelo identificador |
+| `modify <id> <preco> <qty>` | Altera preço e/ou quantidade de uma ordem |
+| `peg bid buy <qty>` | Cria uma ordem que segue o melhor preço de compra |
+| `peg offer sell <qty>` | Cria uma ordem que segue o melhor preço de venda |
+| `exit` | Encerra o programa |
+
 ## Exemplo de uso
  
 ```
@@ -31,6 +46,9 @@ Ordens de Compra
 100 @ 10
 Ordens de Venda
 150 @ 20
+Spread: 10
+>>> exit
+Programa encerrado
 ```
  
 ---
@@ -55,3 +73,7 @@ Como o `PriorityQueue` do C# não suporta remoção de elementos do meio, ordens
  
 Ordens com o mesmo preço são priorizadas pela ordem de chegada. 
 Implementado usando o Id como segundo critério de prioridade no heap: Ids menores chegaram primeiro.
+
+**Liquidez insuficiente**
+
+Market orders que não conseguem ser totalmente preenchidas exibem um aviso informando o quanto foi executado.
