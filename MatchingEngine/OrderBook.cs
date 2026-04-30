@@ -121,6 +121,12 @@ public class OrderBook
         Console.WriteLine("Ordens de Venda");
         foreach (var o in sells)
             Console.WriteLine($"{o.Qty} @ {o.Price}");
+
+        if (buys.Any() && sells.Any())
+        {
+            var spread = sells.First().Price - buys.First().Price;
+            Console.WriteLine($"Spread: {spread}");
+        }
     }
 
     public void CancelOrder(int id)

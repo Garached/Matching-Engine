@@ -50,6 +50,10 @@ while (true)
             book.AddPeggedOrder(pSide, pQty);
             break;
 
+        case "exit":
+            Console.WriteLine("Programa encerrado");
+            return;
+
         default:
             Console.WriteLine("Comando inválido");
             break;
