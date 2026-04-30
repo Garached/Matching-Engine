@@ -79,6 +79,7 @@ public class OrderBook
 
     public void Match(Order marketOrder)
     {
+        int originalQty = marketOrder.Qty;
         var oppositeBook = marketOrder.Side == Side.Buy ? _asks : _bids;
 
         while (marketOrder.Qty > 0 && oppositeBook.Count > 0)
@@ -96,6 +97,11 @@ public class OrderBook
             if (best.Qty == 0) oppositeBook.Dequeue();
         }
         UpdatePeggedOrders();
+
+        if (marketOrder.Qty == originalQty)
+            Console.WriteLine("No liquidity available");
+        else if (marketOrder.Qty > 0)
+            Console.WriteLine($"Partially filled: {originalQty - marketOrder.Qty}/{originalQty}");
     }
 
     public void PrintBook()
