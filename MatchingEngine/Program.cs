@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
 var book = new OrderBook();
 
