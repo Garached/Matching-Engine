@@ -144,26 +144,36 @@ public class OrderBook
         }
     }
 
-    public void ModifyOrder(int id, decimal? newPrice, int? newQty) 
+    public void ModifyOrder(int id, decimal? newPrice, int? newQty)
     {
-            if (!_orders.TryGetValue(id, out var order))
+        if (!_orders.TryGetValue(id, out var order))
         {
             Console.WriteLine("Order not found");
             return;
         }
 
-        if (newQty.HasValue)
-            order.Qty = newQty.Value;
-
-        if (newPrice.HasValue)
+        if (newQty.HasValue && newQty.Value <= 0)
         {
-            order.Qty = 0;
-            _orders.Remove(id);
-
-            AddLimitOrder(order.Side, newPrice.Value, newQty ?? order.Qty); 
+            Console.WriteLine("Quantidade precisa ser maior que zero");
+            return;
         }
 
-        Console.WriteLine($"Order modified");
+        var price = newPrice ?? order.Price;
+        var qty = newQty ?? order.Qty;
+
+        bool losesPriority = price != order.Price || qty > order.Qty;
+
+        if (!losesPriority)
+        {
+            order.Qty = qty;
+            Console.WriteLine($"Order modified: {order.Side.ToString().ToLower()} {qty} @ {price} order_{order.Id}");
+            return;
+        }
+
+        order.Qty = 0;
+        _orders.Remove(id);
+        Console.WriteLine($"Order order_{id} replaced");
+        AddLimitOrder(order.Side, price, qty);
     }
 
     public void AddPeggedOrder(Side side, int qty) 
