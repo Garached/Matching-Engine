@@ -60,7 +60,8 @@ public class OrderBook
             if (bid.Price >= ask.Price)
             {
                 int qty = Math.Min(bid.Qty, ask.Qty);
-                Console.WriteLine($"Trade, price: {ask.Price}, qty: {qty}");
+                var tradePrice = bid.Id < ask.Id ? bid.Price : ask.Price;
+                Console.WriteLine($"Trade, price: {tradePrice}, qty: {qty}");
 
                 bid.Qty -= qty;
                 ask.Qty -= qty;
