@@ -66,8 +66,8 @@ public class OrderBook
                 bid.Qty -= qty;
                 ask.Qty -= qty;
 
-                if (bid.Qty == 0) _bids.Dequeue();
-                if (ask.Qty == 0) _asks.Dequeue();
+                if (bid.Qty == 0) { _bids.Dequeue(); _orders.Remove(bid.Id); }
+                if (ask.Qty == 0) { _asks.Dequeue(); _orders.Remove(ask.Id); }
             }
             else
             {
@@ -95,7 +95,7 @@ public class OrderBook
             marketOrder.Qty -= qty;
             best.Qty -= qty;
 
-            if (best.Qty == 0) oppositeBook.Dequeue();
+            if (best.Qty == 0) { oppositeBook.Dequeue(); _orders.Remove(best.Id); }
         }
         UpdatePeggedOrders();
 
@@ -224,6 +224,7 @@ public class OrderBook
 
             int savedQty = order.Qty;
             order.Qty = 0;
+            _orders.Remove(order.Id);
             _peggedOrders.Remove(order);
             AddPeggedOrder(order.Side, savedQty);
         }
