@@ -168,20 +168,15 @@ public class OrderBook
 
     public void AddPeggedOrder(Side side, int qty) 
     {
-        if (side == Side.Buy && _bids.Count == 0)
+        var best = side == Side.Buy ? BestBid() : BestAsk();
+
+        if (best == null)
         {
-            Console.WriteLine("No bids available to peg to");
-            return;
-        }
-        if (side == Side.Sell && _asks.Count == 0)
-        {
-            Console.WriteLine("No asks available to peg to");
+            Console.WriteLine(side == Side.Buy ? "No bids available to peg to" : "No asks available to peg to");
             return;
         }
 
-        var referencePrice = side == Side.Buy
-        ? _bids.Peek().Price
-        : _asks.Peek().Price;
+        var referencePrice = best.Price;
 
         var order = new Order
         {
@@ -201,17 +196,31 @@ public class OrderBook
             _asks.Enqueue(order, (referencePrice, order.Id));
     }
 
+    private Order? BestBid()
+    {
+        while (_bids.Count > 0 && _bids.Peek().Qty == 0)
+            _bids.Dequeue();
+
+        return _bids.Count > 0 ? _bids.Peek() : null;
+    }
+
+    private Order? BestAsk()
+    {
+        while (_asks.Count > 0 && _asks.Peek().Qty == 0)
+            _asks.Dequeue();
+
+        return _asks.Count > 0 ? _asks.Peek() : null;
+    }
+
     private void UpdatePeggedOrders()
     {
         foreach (var order in _peggedOrders.ToList())
         {
             if (order.Qty == 0) { _peggedOrders.Remove(order); continue; }
 
-            var newPrice = order.Side == Side.Buy
-                ? (_bids.Count > 0 ? _bids.Peek().Price : 0)
-                : (_asks.Count > 0 ? _asks.Peek().Price : 0);
+            var best = order.Side == Side.Buy ? BestBid() : BestAsk();
 
-            if (newPrice == 0 || newPrice == order.Price) continue;
+            if (best == null || best.Price == order.Price) continue;
 
             int savedQty = order.Qty;
             order.Qty = 0;
