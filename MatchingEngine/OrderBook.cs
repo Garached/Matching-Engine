@@ -176,14 +176,13 @@ public class OrderBook
         AddLimitOrder(order.Side, price, qty);
     }
 
-    public void AddPeggedOrder(Side side, int qty) 
+    public Order? AddPeggedOrder(Side side, int qty, bool announce = true) 
     {
         var best = side == Side.Buy ? BestBid() : BestAsk();
 
         if (best == null)
         {
-            Console.WriteLine(side == Side.Buy ? "No bids available to peg to" : "No asks available to peg to");
-            return;
+            return null;
         }
 
         var referencePrice = best.Price;
@@ -204,6 +203,10 @@ public class OrderBook
             _bids.Enqueue(order, (-referencePrice, order.Id));
         else
             _asks.Enqueue(order, (referencePrice, order.Id));
+        if (announce)
+            Console.WriteLine($"Order created: pegged {side.ToString().ToLower()} {qty} @ {referencePrice} order_{order.Id}");
+
+        return order;
     }
 
     private Order? BestBid()
@@ -236,7 +239,9 @@ public class OrderBook
             order.Qty = 0;
             _orders.Remove(order.Id);
             _peggedOrders.Remove(order);
-            AddPeggedOrder(order.Side, savedQty);
+            var newOrder = AddPeggedOrder(order.Side, savedQty, announce: false);
+            if (newOrder != null)
+                Console.WriteLine($"Peg order_{order.Id} repriced to {newOrder.Price}, now order_{newOrder.Id}");
         }
     }
 }
