@@ -54,6 +54,7 @@ Spread: 10
 - **Estruturas:** dois heaps (compra e venda) dão o melhor preço em O(1) amortizado e inserção em O(log N); um `Dictionary` dá acesso por Id em O(1).
 - **Prioridade:** preço, depois ordem de chegada (Id menor chegou antes).
 - **Preço do trade:** o da ordem passiva, a que já estava no livro.
+- **Trades reportados por ordem executada:** uma ordem que cruza com várias ordens gera uma linha de trade para cada uma.
 - **Limit que cruza:** executa na hora, como numa bolsa real.
 - **Cancelamento:** lazy deletion, já que o `PriorityQueue` não remove do meio. `BestBid`/`BestAsk` descartam ordens canceladas do topo.
 - **Modify:** cancel/replace. Reduzir quantidade mantém a prioridade; mudar preço ou aumentar quantidade vai para o fim da fila.
@@ -73,12 +74,14 @@ Após chegar à etapa final do processo, revisei o projeto e corrigi, em commits
 4. Modify zerava a quantidade ao mudar só o preço, e aumentar quantidade não perdia prioridade.
 5. Entradas inválidas eram aceitas, e em máquinas brasileiras `9.98` virava `998`.
 6. Peg não informava o Id, então não podia ser cancelado.
-7. Testes automatizados para os cenários acima.
+7. Livro exibia ordens de mesmo preço fora da ordem de prioridade.
+8. Testes automatizados para os cenários acima.
 
-Usei IA (Claude) como revisor de código para identificar os bugs e discutir soluções. Cada correção foi implementada, testada e documentada por mim.
+Nesta revisão, usei IA (Claude) para identificar bugs, sugerir as correções e escrever os testes automatizados. Apliquei e validei cada mudança em commits separados, e sei explicar o raciocínio de cada uma.
 
 ## Limitações conhecidas
 
 - O `OrderBook` imprime em vez de retornar resultados, acoplando a lógica ao console.
 - Ordens canceladas ocupam o heap até chegarem ao topo.
 - Cancel/replace muda o Id da ordem.
+- Um peg que fica sozinho no topo passa a referenciar a si mesmo e não acompanha a queda do melhor preço.
