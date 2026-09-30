@@ -28,7 +28,7 @@ public class OrderBookTests
         return lines[^1];
     }
 
-    // Ajuste 1: preço do trade
+    // preço do trade
 
     [Fact]
     public void Trade_UsaPrecoDaOrdemPassiva_QuandoVendaAgride()
@@ -54,7 +54,7 @@ public class OrderBookTests
         Assert.Contains("Trade, price: 10, qty: 50", output);
     }
 
-    // Ajuste 2: peg ignora ordens canceladas
+    // peg ignora ordens canceladas
 
     [Fact]
     public void Peg_IgnoraOrdemCancelada()
@@ -70,7 +70,7 @@ public class OrderBookTests
         Assert.Contains("pegged buy 50 @ 9 order_3", output);
     }
 
-    // Ajuste 3: ordens executadas saem do dicionário
+    // ordens executadas saem do dicionário
 
     [Fact]
     public void Cancel_OrdemTotalmenteExecutada_NaoEncontrada()
@@ -98,7 +98,7 @@ public class OrderBookTests
         Assert.Equal("Order cancelled", LastLine(output));
     }
 
-    // Ajuste 4: modify
+    // modify
 
     [Fact]
     public void Modify_SoPreco_MantemQuantidade()
@@ -154,7 +154,7 @@ public class OrderBookTests
         Assert.Equal("Quantidade precisa ser maior que zero", LastLine(output));
     }
 
-    // Ajuste 6: peg informa o Id
+    // peg informa o Id
 
     [Fact]
     public void Peg_Reposicionado_InformaNovoId()
