@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
-CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-
 using static InputParser;
+
+CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
 var book = new OrderBook();
 

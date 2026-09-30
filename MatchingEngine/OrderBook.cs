@@ -109,11 +109,13 @@ public class OrderBook
     {
         var buys = _orders.Values
             .Where(o => o.Side == Side.Buy && o.Qty > 0)
-            .OrderByDescending(o => o.Price);
+            .OrderByDescending(o => o.Price)
+            .ThenBy(o => o.Id);
 
         var sells = _orders.Values
             .Where(o => o.Side == Side.Sell && o.Qty > 0)
-            .OrderBy(o => o.Price);
+            .OrderBy(o => o.Price)
+            .ThenBy(o => o.Id);
 
         Console.WriteLine("Ordens de Compra");
         foreach (var o in buys)
@@ -182,6 +184,7 @@ public class OrderBook
 
         if (best == null)
         {
+            Console.WriteLine(side == Side.Buy ? "No bids available to peg to" : "No asks available to peg to");
             return null;
         }
 
