@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
+using static InputParser;
+
 var book = new OrderBook();
 
 while (true)
@@ -77,28 +79,4 @@ while (true)
             Console.WriteLine("Comando inválido");
             break;
     }
-}
-
-static bool TryParseSide(string text, out Side side)
-{
-    side = default;
-    if (text == "buy") { side = Side.Buy; return true; }
-    if (text == "sell") { side = Side.Sell; return true; }
-    return false;
-}
-
-static bool TryParsePrice(string text, out decimal price)
-{
-    return decimal.TryParse(text, NumberStyles.Number, CultureInfo.InvariantCulture, out price) && price > 0;
-}
-
-static bool TryParseQty(string text, out int qty)
-{
-    return int.TryParse(text, out qty) && qty > 0;
-}
-
-static bool TryParseId(string text, out int id)
-{
-    if (text.StartsWith("order_")) text = text.Substring("order_".Length);
-    return int.TryParse(text, out id);
 }
